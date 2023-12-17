@@ -1,0 +1,39 @@
+version: '3.9'
+
+services:
+  mongo:
+    image: mongo:4.4.6
+    container_name: mongo_container    
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - 27017:27017
+
+  api:
+    build: ./api
+    container_name: api_container
+    ports:
+      - 4000:4000
+    depends_on:
+      - mongo
+    volumes:
+      - ./api:/app
+      - /app/node_modules
+    environment:
+      - MONGO_URL=mongodb://mongo:27017/mongo_api_db
+
+  client:
+    build: ./client
+    container_name: client_container
+    ports:
+      - 3000:3000
+    stdin_open: true
+    tty: true
+    depends_on:
+      - api
+    volumes:
+      - ./client:/client
+      - /client/node_modules
+
+volumes:
+  mongo-data:
